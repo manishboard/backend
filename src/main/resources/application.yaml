@@ -1,0 +1,18 @@
+logging:
+  file:
+    name: ./logs/application.log
+    
+---
+spring:
+    application:
+        name: manishboard
+    servlet:
+        multipart:
+            max-file-size: 10MB # file upload size
+            max-request-size: 10MB
+    profiles:
+        active: dev
+
+---
+server:
+  port: 8080
