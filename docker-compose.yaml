@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  app:
+    image: 
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PROFILE: ${PROFILE}
+        DB_ENDPOINT: ${DB_ENDPOINT}
+        DB_USERNAME: ${DB_USERNAME}
+        DB_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - database_default 
+
+networks:
+  database_default:
+    external: true

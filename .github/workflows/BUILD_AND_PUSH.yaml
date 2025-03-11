@@ -1,0 +1,48 @@
+# This pipeline builds a Docker image from the repository and pushes it to GitHub Container Registry
+name: Build And Push
+
+on:
+  push:
+    branches:
+      - main  # Triggers on push to the main branch
+  workflow_dispatch:  # Allows manually triggering the workflow
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the code from the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Docker Compose
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      # Log in to GitHub Container Registry using secrets
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      # Build the Docker image and tag it
+      - name: Build Docker image
+        env:
+          DOCKER_IMAGE_NAME: ${{ vars.DOCKER_IMAGE_NAME }}
+          DOCKER_IMAGE_TAG: ${{ vars.DOCKER_IMAGE_TAG }}
+          PROFILE: ${{vars.PROFILE}}
+          DB_ENDPOINT: ${{ vars.DB_ENDPOINT }}
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: docker-compose build
+
+      # Push the Docker image to GitHub Container Registry
+      - name: Push Docker image to GitHub Container Registry
+        env:
+          DOCKER_IMAGE_NAME: ${{ vars.DOCKER_IMAGE_NAME }}
+          DOCKER_IMAGE_TAG: ${{ vars.DOCKER_IMAGE_TAG }}
+        run: docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+
+      # Log out from Docker
+      - name: Log out from Docker
+        run: docker logout ghcr.io

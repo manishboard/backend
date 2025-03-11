@@ -1,0 +1,11 @@
+# db config
+spring:
+    datasource:
+        url: ${DB_ENDPOINT}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+        # driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
