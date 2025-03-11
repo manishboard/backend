@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   app:
-    image: 
+    image: "${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
     build:
       context: .
       dockerfile: Dockerfile
@@ -11,9 +11,3 @@ services:
         DB_ENDPOINT: ${DB_ENDPOINT}
         DB_USERNAME: ${DB_USERNAME}
         DB_PASSWORD: ${DB_PASSWORD}
-    networks:
-      - database_default 
-
-networks:
-  database_default:
-    external: true
