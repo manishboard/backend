@@ -1,6 +1,8 @@
 # This pipeline builds a Docker image from the repository and pushes it to GitHub Container Registry
 name: Build And Push
 
+env:
+  DOCKER_IMAGE_TAG: ()
 on:
   push:
     branches:
@@ -25,11 +27,15 @@ jobs:
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+      - name: Read version file
+        id: get_version
+        run: echo "DOCKER_IMAGE_TAG=$(cat VERSION)" >> $GITHUB_OUTPUT
+
       # Build the Docker image and tag it
       - name: Build Docker image
         env:
           DOCKER_IMAGE_NAME: ${{ vars.DOCKER_IMAGE_NAME }}
-          DOCKER_IMAGE_TAG: ${{ vars.DOCKER_IMAGE_TAG }}
+          DOCKER_IMAGE_TAG: ${{ steps.get_version.outputs.DOCKER_IMAGE_TAG }}
           PROFILE: ${{vars.PROFILE}}
           DB_ENDPOINT: ${{ vars.DB_ENDPOINT }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
