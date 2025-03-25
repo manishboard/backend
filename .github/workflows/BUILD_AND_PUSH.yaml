@@ -1,8 +1,6 @@
 # This pipeline builds a Docker image from the repository and pushes it to GitHub Container Registry
 name: Build And Push
 
-env:
-  DOCKER_IMAGE_TAG: ()
 on:
   push:
     branches:
