@@ -1,0 +1,47 @@
+name: Deploy Helm
+
+on:
+  workflow_run:
+    workflows: ["BUILD_AND_PUSH"]
+    branches: [main]
+    types:
+      - completed
+  workflow_dispatch:  # Allows manually triggering the workflow
+
+env:
+  RELEASE_NAME: "manishboard-rls"
+  RELEASE_NAMESPACE: "manishboard-ns"
+  CHART_REPO: "manishboard-helm"
+  CHART_NAME: "manishboard"
+  VALUES: "deployment.backend.imageTag"
+  IMAGE_TAG: ${{ github.sha || 'latest' }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Only run if the previous workflow was successful
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: 'latest'
+
+      - name: Configure Kubernetes
+        uses: azure/k8s-set-context@v3
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+        
+      - name: Add Helm repository
+        run: helm repo add $CHART_REPO https://your-helm-repo-url && helm repo update
+        
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install $RELEASE_NAME $CHART_REPO/$CHART_NAME \
+            -n $RELEASE_NAMESPACE \
+            --create-namespace \
+            --set $VALUES=$IMAGE_TAG
