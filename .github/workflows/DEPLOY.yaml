@@ -2,7 +2,7 @@ name: Deploy Helm
 
 on:
   workflow_run:
-    workflows: ["build-and-push"]
+    workflows: ["Build And Push"]
     branches: [main]
     types:
       - completed
