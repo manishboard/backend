@@ -25,27 +25,28 @@ jobs:
       - name: Log in to GitHub Container Registry
         run: echo "${{ secrets.PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Read version file
-        id: get_version
-        run: echo "DOCKER_IMAGE_TAG=$(cat VERSION)" >> $GITHUB_OUTPUT
 
       # Build the Docker image and tag it
       - name: Build Docker image
         env:
           DOCKER_IMAGE_NAME: ${{ vars.DOCKER_IMAGE_NAME }}
-          DOCKER_IMAGE_TAG: ${{ steps.get_version.outputs.DOCKER_IMAGE_TAG }}
+          DOCKER_IMAGE_TAG: ${{ github.sha }}
           PROFILE: ${{vars.PROFILE}}
           DB_ENDPOINT: ${{ vars.DB_ENDPOINT }}
           DB_USERNAME: ${{ secrets.DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        run: docker-compose build
+        run: |
+          docker-compose build
+          docker tag $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG $DOCKER_IMAGE_NAME:latest
 
       # Push the Docker image to GitHub Container Registry
       - name: Push Docker image to GitHub Container Registry
         env:
           DOCKER_IMAGE_NAME: ${{ vars.DOCKER_IMAGE_NAME }}
-          DOCKER_IMAGE_TAG: ${{ steps.get_version.outputs.DOCKER_IMAGE_TAG }}
-        run: docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+          DOCKER_IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker push ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}
+          docker push ${DOCKER_IMAGE_NAME}:latest
 
       # Log out from Docker
       - name: Log out from Docker
