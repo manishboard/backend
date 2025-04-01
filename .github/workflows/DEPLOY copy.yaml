@@ -2,7 +2,7 @@ name: Deploy Helm
 
 on:
   workflow_run:
-    workflows: ["build-and-push"]
+    workflows: ["build"]
     branches: [main]
     types:
       - completed
@@ -17,7 +17,7 @@ env:
   IMAGE_TAG: ${{ github.sha || 'latest' }}
 
 jobs:
-  deploy:
+  deploy2:
     runs-on: ubuntu-latest
     # Only run if the previous workflow was successful
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
