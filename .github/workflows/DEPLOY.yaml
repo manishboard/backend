@@ -37,11 +37,12 @@ jobs:
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
         
       - name: Add Helm repository
-        run: helm repo add $CHART_REPO https://your-helm-repo-url && helm repo update
+        run: |
+          helm repo add $CHART_REPO https://helm.manishboard.manish.kr/
+          helm repo update
         
       - name: Deploy with Helm
         run: |
           helm upgrade --install $RELEASE_NAME $CHART_REPO/$CHART_NAME \
             -n $RELEASE_NAMESPACE \
-            --create-namespace \
             --set $VALUES=$IMAGE_TAG
